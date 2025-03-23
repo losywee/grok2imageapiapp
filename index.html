@@ -140,7 +140,8 @@
                 if (result.data && result.data.length > 0) {
                     const chatDisplay = document.getElementById('chat-display');
                     const imgElement = document.createElement('img');
-                    imgElement.src = result.data[0].url;
+                    let encodedString = encodeURIComponent(result.data[0].url);
+                    imgElement.src = "https://imagecdn.app/v2/image/" + encodedString + "?width=1500";
                     imgElement.alt = 'Generated Image';
                     imgElement.classList.add('w-full', 'mt-2');
                     chatDisplay.appendChild(imgElement);
