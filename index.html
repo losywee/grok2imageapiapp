@@ -6,6 +6,24 @@
     <title>Image Generator Chat Box</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<style>
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #007BFF;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
 <body class="bg-gray-100 h-screen flex items-center justify-center">
     <div class="w-full max-w-md bg-white rounded-lg shadow-lg overflow-hidden">
         <!-- Chat Display Area -->
@@ -18,6 +36,7 @@
             <button id="send-button" class="px-4 py-2 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 focus:outline-none">
                 Generate
             </button>
+            <div id="loading-spinner" class="spinner"></div>
             <button id="settings-button" class="ml-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none">
                 ⚙️
             </button>
@@ -95,6 +114,12 @@
                 return;
             }
 
+            const sendButton = document.getElementById('send-button');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            sendButton.disabled = true; // Disable the button to prevent multiple submissions
+            sendButton.textContent = 'Generating...';
+            loadingSpinner.style.display = 'block'; // Show the spinner
+
             const data = {
                 prompt: prompt,
                 model: modelName,
@@ -127,7 +152,12 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred while generating the image.');
+            }).finally(() => {
+                sendButton.disabled = false; // Re-enable the button
+                sendButton.textContent = 'Generate';
+                loadingSpinner.style.display = 'none'; // Hide the spinner
             });
+            ;
         };
 
         // Listen for click on the "Generate" button
