@@ -30,10 +30,9 @@
         <div id="chat-display" class="h-96 overflow-y-auto p-4 bg-gray-50">
             <!-- Generated images or messages will appear here -->
         </div>
-        <!-- Input Area -->
         <div class="flex items-center p-4">
-            <input type="text" id="chat-input" placeholder="Describe the image you want to generate..." class="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:border-blue-500">
-            <button id="send-button" class="px-4 py-2 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 focus:outline-none">
+            <textarea id="chat-input" rows="3" placeholder="Describe the image you want to generate..." class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 resize-none"></textarea>
+            <button id="send-button" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none">
                 Generate
             </button>
             <div id="loading-spinner" class="spinner"></div>
@@ -78,6 +77,13 @@
         // JavaScript for modal functionality
         document.getElementById('settings-button').addEventListener('click', function() {
             document.getElementById('settings-modal').classList.remove('hidden');
+            const endpoint = localStorage.getItem('apiEndpoint');
+            const apiKey = localStorage.getItem('apiKey');
+            const modelName = localStorage.getItem('modelName');
+
+            document.getElementById('api-endpoint').value = endpoint || '';
+            document.getElementById('api-key').value = apiKey || '';
+            document.getElementById('model-name').value = modelName || '';
         });
 
         document.getElementById('close-settings').addEventListener('click', function() {
