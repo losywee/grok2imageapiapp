@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Generator Chat Box</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Chat Display Area -->
+        <div id="chat-display" class="h-96 overflow-y-auto p-4 bg-gray-50">
+            <!-- Generated images or messages will appear here -->
+        </div>
+        <!-- Input Area -->
+        <div class="flex items-center p-4">
+            <input type="text" id="chat-input" placeholder="Describe the image you want to generate..." class="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:border-blue-500">
+            <button id="send-button" class="px-4 py-2 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 focus:outline-none">
+                Generate
+            </button>
+            <button id="settings-button" class="ml-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none">
+                ⚙️
+            </button>
+        </div>
+    </div>
+
+     <!-- Settings Modal -->
+     <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg max-w-md w-full">
+            <h2 class="text-lg font-semibold mb-4">Settings</h2>
+            <form id="settings-form">
+                <div class="mb-4">
+                    <label for="api-endpoint" class="block text-sm font-medium text-gray-700">API Endpoint:</label>
+                    <input type="text" id="api-endpoint" name="api-endpoint" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Enter API endpoint">
+                </div>
+                <div class="mb-4">
+                    <label for="api-key" class="block text-sm font-medium text-gray-700">API Key:</label>
+                    <input type="password" id="api-key" name="api-key" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Enter API key">
+                </div>
+                <div class="mb-4">
+                    <label for="model-name" class="block text-sm font-medium text-gray-700">Model Name:</label>
+                    <select id="model-name" name="model-name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="">Select a Model</option>
+                        <option value="grok-2-image">图片模型1</option>
+                        <option value="grok-2-image-latest">图片模型2</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none">
+                    Save
+                </button>
+            </form>
+            <button id="close-settings" class="mt-4 w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript for modal functionality
+        document.getElementById('settings-button').addEventListener('click', function() {
+            document.getElementById('settings-modal').classList.remove('hidden');
+        });
+
+        document.getElementById('close-settings').addEventListener('click', function() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        });
+
+        // Function to save settings
+        document.getElementById('settings-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const endpoint = document.getElementById('api-endpoint').value;
+            const apiKey = document.getElementById('api-key').value;
+            const modelName = document.getElementById('model-name').value;
+
+            if (!endpoint || !apiKey) {
+                alert('Please fill in both API Endpoint and API Key.');
+                return;
+            }
+
+            localStorage.setItem('apiEndpoint', endpoint);
+            localStorage.setItem('apiKey', apiKey);
+            localStorage.setItem('modelName', modelName);
+            document.getElementById('settings-modal').classList.add('hidden');
+        });
+
+        // Function to generate image
+        const generateImage = function() {
+            const prompt = document.getElementById('chat-input').value;
+            const endpoint = localStorage.getItem('apiEndpoint') || "https://aix.moruy.cn/grok/v1/images/generations";
+            const apiKey = localStorage.getItem('apiKey');
+            const modelName = localStorage.getItem('modelName') || null;
+
+            if (!prompt || !apiKey) {
+                alert('Please provide a prompt and check your settings for API key.');
+                return;
+            }
+
+            const data = {
+                prompt: prompt,
+                model: modelName,
+                response_format: "url",
+                n: 1
+            };
+
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.data && result.data.length > 0) {
+                    const chatDisplay = document.getElementById('chat-display');
+                    const imgElement = document.createElement('img');
+                    imgElement.src = result.data[0].url;
+                    imgElement.alt = 'Generated Image';
+                    imgElement.classList.add('w-full', 'mt-2');
+                    chatDisplay.appendChild(imgElement);
+                    chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                } else {
+                    alert('Failed to generate image or no image data returned.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while generating the image.');
+            });
+        };
+
+        // Listen for click on the "Generate" button
+        document.getElementById('send-button').addEventListener('click', generateImage);
+
+        // Listen for the Enter key press in the chat input
+        document.getElementById('chat-input').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                generateImage();
+            }
+        });
+    </script>
+</body>
+</html>
