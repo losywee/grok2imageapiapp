@@ -123,7 +123,7 @@
             const sendButton = document.getElementById('send-button');
             const loadingSpinner = document.getElementById('loading-spinner');
             sendButton.disabled = true; // Disable the button to prevent multiple submissions
-            sendButton.textContent = 'Generating...';
+            sendButton.textContent = 'Go...';
             loadingSpinner.style.display = 'block'; // Show the spinner
 
             const data = {
@@ -161,7 +161,7 @@
                 alert('An error occurred while generating the image.');
             }).finally(() => {
                 sendButton.disabled = false; // Re-enable the button
-                sendButton.textContent = 'Generate';
+                sendButton.textContent = 'Go';
                 loadingSpinner.style.display = 'none'; // Hide the spinner
             });
             ;
